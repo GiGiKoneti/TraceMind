@@ -1,97 +1,69 @@
-# TraceMind 🧠 — AI-Powered System Behavior Explainer
+# TraceMind 🧠
 
-**TraceMind** is a research-oriented observability agent that uses a hybrid **Symbolic + Neural reasoning** approach to analyze system telemetry. It transforms raw, high-cardinality trace data into causal narratives, helping engineers understand *why* a system failed, not just *that* it failed.
+> Making sense of the chaos in distributed systems.
 
----
+Distributed systems are notoriously hard to debug. When things go wrong, we're usually buried in a mountain of traces, logs, and metrics, trying to piece together a story. **TraceMind** is my attempt to automate that "story-telling" process using a hybrid approach—combining specific symbolic rules with the deductive power of LLMs.
 
-## 🚀 Key Features
-
-- **OTel-Aligned Core**: Built on OpenTelemetry-inspired data models for seamless integration with modern observability stacks.
-- **Hybrid Reasoning Engine**:
-  - **Symbolic Layer**: Go-based analyzer that pre-computes latency bottlenecks and error propagation facts.
-  - **Neural Layer**: LLM reasoning (Mistral/Llama3) via **LangChainGo** to explain complex systemic failures.
-- **Symbolic Memory**: A global health store that tracks cross-trace trends (error rates, service latency spikes) to provide historical context to the AI.
-- **Real-Time Streaming (SSE)**: High-performance streaming of AI logic using Server-Sent Events, ensuring a responsive UX even with heavy local inference.
-- **Research Comparison Mode**: A split-screen UI to evaluate the efficacy of **Structured Prompting** (with rules/memory) vs. **Raw Reasoning** (baseline).
-- **SRE Auditor**: An automated **LLM-as-a-Judge** evaluator that scores AI explanations on technical correctness and causal logic.
+It’s not just about "guessing" what happened; it’s about giving the AI a **Symbolic Scaffold** and a **Short-term Memory** so it can see the bigger picture.
 
 ---
 
-## 🏗️ System Architecture
+## 🌩️ The Problem: "The Trace Wall"
+You’ve seen it. A production incident happens, you open your observability tool, and you're met with a waterfall of 500 spans. 
+*   Which one is the *actual* root cause? 
+*   Is that latency spike a one-off or a trend?
+*   How does the `auth` failure impact the `downstream-api`?
 
-```mermaid
-graph TD
-    A[Telemetry Input] --> B[Go Backend]
-    B --> C{Symbolic Analyzer}
-    C -->|Extract Facts| D[Symbolic Memory]
-    D -->|Inject Context| E[LangChainGo Engine]
-    E -->|Stream Logic| F[SSE Handler]
-    F -->|Real-time UI| G[React Dashboard]
-    E <--> H[Ollama / Local LLM]
-    G --> I[SRE Auditor Verdict]
-    I <--> E
-```
+Usually, an SRE spends 20 minutes connecting these dots. TraceMind does it in seconds.
 
 ---
 
-## 🛠️ Tech Stack
+## ✨ The "Secret Sauce"
 
-| Layer | Technology |
-| :--- | :--- |
-| **Backend API** | Go 1.25+ |
-| **LLM Orchestration** | LangChainGo |
-| **Local Inference** | Ollama |
-| **Frontend** | React + Vite + TypeScript |
-| **Styling** | Vanilla CSS (Observability Theme) |
-| **Communication** | REST (Input) + SSE (Streaming AI) |
+What makes TraceMind v2.0 different from a basic ChatGPT wrapper?
 
----
+### 1. Hybrid Reasoning (Symbolic + Neural)
+Before the LLM even sees the data, a Go-based **Symbolic Analyzer** runs a pass over the trace. It identifies bottlenecks and error origins using proven SRE heuristics. We don't just dump raw JSON into a prompt; we provide "The Facts."
 
-## 🔬 Research Components
+### 2. Symbolic Memory
+LLMs are usually stateless. TraceMind isn't. It tracks a sliding window of recent system health—error rates, slow services, and patterns. When the AI explains a trace, it knows if the system has been "shaky" for the last 10 minutes.
 
-### 📌 1. Context Engineering
-TraceMind explores the reduction of LLM hallucinations in technical domains by providing "symbolic scaffolds" (pre-computed facts) instead of raw telemetry dumps. 
+### 3. Real-Time SSE Streaming
+Local LLMs can be slow. Instead of making you stare at a loading spinner, we stream the AI's "train of thought" live via Server-Sent Events. You watch the reasoning happen in real-time.
 
-### 📌 2. Symbolic + Neural Hybrid
-By leveraging a symbolic memory store, the agent can distinguish between isolated failures and systemic trends (e.g., "This timeout is likely related to the 33% error rate observed in the last 10 minutes").
-
-### 📌 3. Technical Evaluation
-The project includes an **SRE Auditor** to systematically grade the Technical Correctness and Rationale of generated explanations, providing a framework for continuous prompt optimization.
+### 4. SRE Auditor (The Judge)
+We implemented a **Research Mode** where you can compare different prompting strategies. To keep it honest, an "LLM-as-a-Judge" Auditor grades the explanations on technical accuracy and causal logic.
 
 ---
 
-## 🚦 Getting Started
+## 🛠️ The Build
 
-### Prerequisites
-1.  **Go** (1.25 or later)
-2.  **Node.js** & **npm**
-3.  **Ollama** (with `mistral` or `llama3` pulled)
-
-### Setup & Running
-
-**1. Start Ollama**
-```bash
-ollama serve
-# In another terminal
-ollama pull mistral
-```
-
-**2. Run the Backend**
-```bash
-# From the root directory
-export OLLAMA_MODEL=mistral
-go run main.go
-```
-
-**3. Run the Frontend**
-```bash
-cd frontend
-npm install
-npm run dev -- --port 5173
-```
-
-Navigate to `http://localhost:5173` to start explaining traces!
+*   **Backend**: Clean, idiomatic Go 1.25. Leveraging **LangChainGo** for orchestration.
+*   **Frontend**: A sleek React + Vite dashboard designed for observability (Dark mode by default, because we're engineers).
+*   **Models**: Standardized on **OTel-like** structures for future-proofing.
+*   **Local-First**: Powered by **Ollama**. Your sensitive system data never leaves your machine.
 
 ---
 
-Built for **LFX Mentorship Research** | AI for Observability 🚀
+## � Get it Running
+
+1.  **Ollama**: Pull the model you want to use (I recommend `mistral` or `llama3`).
+    ```bash
+    ollama pull mistral
+    ```
+2.  **Backend**:
+    ```bash
+    export OLLAMA_MODEL=mistral
+    go run main.go
+    ```
+3.  **Frontend**:
+    ```bash
+    cd frontend && npm install && npm run dev
+    ```
+
+---
+
+## 🔬 Contributing / Research
+This started as a research project for the LFX Mentorship. If you're into AI-for-Ops, causal reasoning, or just want to help make system debugging less of a headache, feel free to open an issue or a PR!
+
+**Built with ❤️ and a lot of caffeine.**
