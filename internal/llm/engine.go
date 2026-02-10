@@ -11,7 +11,9 @@ import (
 )
 
 type Engine struct {
-	llm *ollama.LLM
+	llm      *ollama.LLM
+	provider LLMProvider
+	config   ProviderConfig
 }
 
 func NewEngine(modelName string) (*Engine, error) {
@@ -19,7 +21,20 @@ func NewEngine(modelName string) (*Engine, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &Engine{llm: l}, nil
+
+	ollamaProvider, err := NewOllamaProvider("", modelName)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Engine{
+		llm:      l,
+		provider: ollamaProvider,
+		config: ProviderConfig{
+			Provider: ProviderOllama,
+			Model:    modelName,
+		},
+	}, nil
 }
 
 // ExplainTraceStream uses the LLM to provide a streaming causal explanation.

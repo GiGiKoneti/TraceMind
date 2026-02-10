@@ -34,6 +34,22 @@ Local LLMs can be slow. Instead of making you stare at a loading spinner, we str
 ### 4. SRE Auditor (The Judge)
 We implemented a **Research Mode** where you can compare different prompting strategies. To keep it honest, an "LLM-as-a-Judge" Auditor grades the explanations on technical accuracy and causal logic.
 
+### 5. AI Adapter for Infrastructure Generation (NEW!)
+TraceMind now includes a **Meshery AI Adapter MVP** that transforms natural language into production-ready Kubernetes infrastructure. Using the same multi-provider LLM engine, you can:
+
+- **Generate complete infrastructure designs** from simple prompts
+- **Support multiple LLM providers**: OpenAI (GPT-4), Anthropic (Claude), or local Ollama models
+- **Get production-ready Kubernetes manifests** with best practices (health checks, HA, resource limits)
+- **Manage AI connections** via REST API
+
+**Example:**
+```
+Prompt: "Create a web app with Node.js backend, Redis cache, and PostgreSQL database"
+Output: Complete Kubernetes infrastructure with Deployments, Services, StatefulSets, PVCs, ConfigMaps, and Secrets
+```
+
+See [AI_ADAPTER_README.md](AI_ADAPTER_README.md) for full documentation.
+
 ---
 
 ## 🛠️ The Build
@@ -42,6 +58,7 @@ We implemented a **Research Mode** where you can compare different prompting str
 *   **Frontend**: A sleek React + Vite dashboard designed for observability (Dark mode by default, because we're engineers).
 *   **Models**: Standardized on **OTel-like** structures for future-proofing.
 *   **Local-First**: Powered by **Ollama**. Your sensitive system data never leaves your machine.
+*   **AI Adapter**: Multi-provider LLM support (OpenAI, Anthropic, Ollama) for infrastructure generation via REST API.
 
 ---
 
@@ -50,20 +67,42 @@ We implemented a **Research Mode** where you can compare different prompting str
 1.  **Ollama**: Pull the model you want to use (I recommend `mistral` or `llama3`).
     ```bash
     ollama pull mistral
+    ollama serve
     ```
 2.  **Backend**:
     ```bash
     export OLLAMA_MODEL=mistral
     go run main.go
     ```
-3.  **Frontend**:
+    Server starts on `http://localhost:8080` with endpoints:
+    - **Trace Analysis**: `/api/analyze`, `/api/evaluate`
+    - **AI Connections**: `/api/connections/*`
+    - **Design Generation**: `/api/design/generate`, `/api/design/generate-stream`
+3.  **Frontend** (Optional):
     ```bash
     cd frontend && npm install && npm run dev
+    ```
+
+4.  **Test AI Adapter** (Optional):
+    ```bash
+    ./test_ai_adapter.sh
     ```
 
 ---
 
 ## 🔬 Contributing / Research
+
 This started as a research project for the LFX Mentorship. If you're into AI-for-Ops, causal reasoning, or just want to help make system debugging less of a headache, feel free to open an issue or a PR!
+
+The AI Adapter implementation is a **prototype MVP** of Meshery's "Natural Language to Infrastructure" capabilities. See [AI_ADAPTER_README.md](AI_ADAPTER_README.md) for architecture details and future roadmap.
+
+---
+
+## 📚 Documentation
+
+- [AI Adapter API Documentation](AI_ADAPTER_README.md) - Complete guide to infrastructure generation
+- [Test Script](test_ai_adapter.sh) - Automated testing for all endpoints
+
+---
 
 **Built with ❤️ and a lot of caffeine.**
